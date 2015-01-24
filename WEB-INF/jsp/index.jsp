@@ -111,13 +111,17 @@ $(function() {
 
 
 var sendContact = function() {
-	var method = (document.getElementById("contactPopupForm").id.value ? "PUT" : "POST");
+	var cId = document.getElementById("contactPopupForm")['contact.id'].value;
+	var method = (cId ? "PUT" : "POST");
 	$.ajax({
 	    type: method,
 		data: $('#contactPopupForm').serialize(),
-		url: restURL+contactBase
+		url: restURL+contactBase+cId
 	}).done(function(data) {
 		if(showMessage(data)) {
+			if(method == "PUT") {
+				contactDataTable.row('.selected').remove().draw( false );
+			}
 			contactDataTable.row.add(data.data).draw();
 			dialog.dialog( "close" );
 		}
@@ -142,7 +146,7 @@ var fillContactForm = function(contactData) {
 	form['contact.nameLast'].value=(contactData.nameLast ? contactData.nameLast : "");
 	form['contact.numberCell'].value=(contactData.numberCell ? contactData.numberCell : "");
 	form['contact.email'].value=(contactData.email ? contactData.email : "");
-	form['contact.bday'].value=(contactData.bday ? contactData.bday : "");
+	form['contact.bday'].value=(contactData.birthday ? contactData.birthday : "");
 	return;
 } 
 var resetContactForm = function() {

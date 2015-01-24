@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.HttpCache;
@@ -25,7 +26,7 @@ import net.sourceforge.stripes.action.UrlBinding;
 public class ContactApiAction extends BaseAction {
 
 	private Session db = HibernateUtil.getSession();
-	private Gson g = new Gson();
+	private Gson g = new GsonBuilder().setDateFormat("MM/dd/yyyy").create();
 	private Map<String,Object> json = new HashMap<String,Object>();
 	private String id = Constants.BLANK_STRING;
 	private Contact contact;
@@ -34,7 +35,6 @@ public class ContactApiAction extends BaseAction {
 	@DefaultHandler
 	public Resolution rest() {
 		String method = getContext().getRequest().getMethod().toUpperCase();
-System.out.println("Start ContactApiAction rest("+method+")");
 		if("GET".equals(method)) { //Lookup Contact
 			list();
 		} else if("POST".equals(method)) { //Add a new contact
@@ -48,21 +48,17 @@ System.out.println("Start ContactApiAction rest("+method+")");
 			json.put("message", "Unsupported method requested: "+method);
 		}
 		db.close();
-System.out.println("Result ContactApiAction rest("+method+")");
 		return new StreamingResolution("application/json",g.toJson(json));
 	}
 	
 	
-	private void list() {
-System.out.println("list() started");		
+	private void list() {		
 		Criteria c = db.createCriteria(Contact.class);
 		if(StringUtils.isNotBlank(id)) {
 			//Load the requested contact
 			c.add(Restrictions.eq("id", Long.parseLong(id)));
 		}
-System.out.println("list() criteria created");
 		List<Contact> cl = HibernateUtil.castList(Contact.class, c.list());
-System.out.println("list() contacts loaded");
 		json.put("success",true);
 		json.put("data", cl);
 	}
@@ -90,11 +86,11 @@ System.out.println("list() contacts loaded");
 	}
 	
 	public void update() {
-		System.out.println("Contact: "+contact.getId() + " - "+id);
-		if(contact != null && contact.getId().equals(Long.parseLong(id))) {
+		if(contact != null && id != null && contact.getId().equals(Long.parseLong(id))) {
 			if(contact.valid().length() == 0) {
 				if(contact.getId() > -1L) {
 					db.update(contact);
+					db.flush();
 					json.put("success",true);
 					json.put("data", contact);
 				} else {
@@ -113,7 +109,6 @@ System.out.println("list() contacts loaded");
 	}
 	
 	public void delete() {
-System.out.println("delete() ID: "+id);
 		if(StringUtils.isNotBlank(id) && StringUtils.isNumeric(id)) {
 			Long cid = Long.parseLong(id);
 			Criteria c = db.createCriteria(Contact.class);
