@@ -115,11 +115,6 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="Servers (1)">
-        <java classname="org.bshouse.wsdb.server.Servers" failonerror="true" fork="yes">
-            <classpath refid="RESTfulContacts.classpath"/>
-        </java>
-    </target>
     <target name="ContactApiTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
@@ -127,6 +122,11 @@
             <test name="org.bshouse.wsdb.test.ContactApiTest" todir="${junit.output.dir}"/>
             <classpath refid="RESTfulContacts.classpath"/>
         </junit>
+    </target>
+    <target name="Server">
+        <java classname="org.bshouse.wsdb.server.Servers" failonerror="true" fork="yes">
+            <classpath refid="RESTfulContacts.classpath"/>
+        </java>
     </target>
     <target name="junitreport">
         <junitreport todir="${junit.output.dir}">
