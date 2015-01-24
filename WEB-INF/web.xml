@@ -50,7 +50,6 @@
 					<param-name>Interceptor.Classes</param-name>
 					<param-value>
 						com.samaxes.stripes.xss.XssInterceptor
-						net.sourceforge.stripes.controller.BeforeAfterMethodInterceptor
 					</param-value>
 				</init-param>
                    

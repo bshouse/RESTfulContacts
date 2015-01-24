@@ -18,7 +18,9 @@
 
 		<!-- <property name="hibernate.connection.driver_class">org.hsqldb.jdbc.JDBCDriver</property> -->
 
-		<property name="hibernate.connection.url">jdbc:hsqldb:hsql://127.0.0.1:60000/dummy</property>
+		<!-- HibernateUtil.java appends the proper DB name. This is just the Base URL -->
+		<property name="hibernate.connection.url">jdbc:hsqldb:hsql://127.0.0.1:60000/</property>
+		<property name="hibernate.default_schema">dummy</property>
 
 		<property name="hibernate.connection.username">dummy</property>
 
@@ -82,7 +84,7 @@
 
 
 
-		<!-- <property name="hibernate.default_schema">schemaName</property> -->
+		
 
 
 

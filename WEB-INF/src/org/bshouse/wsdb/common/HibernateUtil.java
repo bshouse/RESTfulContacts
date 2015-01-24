@@ -29,7 +29,20 @@ public class HibernateUtil {
 	public static SessionFactory getSessionFactory() {
 		if(sessionFactory == null) {
 			Configuration config = new Configuration();
-			sessionFactory = config.configure().buildSessionFactory(
+			config.configure();
+			String db = System.getenv(Constants.DB_ENV_VAR);
+			
+			//Determine if the Production DB was requested. 
+			if(!Constants.DB_PROD.equals(db)) {
+				//Test
+				config.setProperty("hibernate.connection.url", config.getProperty("hibernate.connection.url")+Constants.DB_TEST);
+				config.setProperty("hibernate.default_schema",Constants.DB_TEST);
+			} else {
+				//Production
+				config.setProperty("hibernate.connection.url", config.getProperty("hibernate.connection.url")+Constants.DB_PROD);
+				config.setProperty("hibernate.default_schema",Constants.DB_PROD);
+			}
+			sessionFactory = config.buildSessionFactory(
 					new StandardServiceRegistryBuilder().applySettings(config.getProperties()).build());
 		}
 		return sessionFactory;

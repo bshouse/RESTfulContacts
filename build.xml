@@ -123,8 +123,14 @@
             <classpath refid="RESTfulContacts.classpath"/>
         </junit>
     </target>
-    <target name="Server">
+    <target name="TestServer">
         <java classname="org.bshouse.wsdb.server.Servers" failonerror="true" fork="yes">
+            <classpath refid="RESTfulContacts.classpath"/>
+        </java>
+    </target>
+    <target name="ProdServer">
+        <java classname="org.bshouse.wsdb.server.Servers" failonerror="true" fork="yes">
+            <env key="RESTDB" value="prod"/>
             <classpath refid="RESTfulContacts.classpath"/>
         </java>
     </target>

@@ -81,6 +81,9 @@ public class Servers {
 		p.put("server.database.0","file:"+dbDir.getAbsolutePath()+
 				";hsqldb.sqllog=3;sql.enforce_names=true;user=dummy;password=dp4hsdb");
 		p.put("server.dbname.0", "dummy");
+		p.put("server.database.1","file:"+dbDir.getAbsolutePath()+
+				";hsqldb.sqllog=3;sql.enforce_names=true;user=dummy;password=dp4hsdb");
+		p.put("server.dbname.1", "prod");
 		p.put("server.silent","false");
 		p.put("server.trace", "true");
 		p.put("server.no_system_exit", "true");
