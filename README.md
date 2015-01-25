@@ -1,5 +1,5 @@
 # RESTfulContacts
-A simple REST application for basic contact management
+A simple REST application for basic contact management (See the Wiki for more detailed information)
 
 ## Framework Configuration
 * Stripes Framework
@@ -26,4 +26,8 @@ ant ProdServer
 1. Start the Test Server- ant TestServer 
 2. Start the JUnit tests- ant ContactApiTest
 
+<<<<<<< HEAD
 (Note: All 'ant' commands should be run where the build.xml file is located.)
+=======
+(Note: All 'ant' commands should be run where the build.xml file is located.)
+>>>>>>> refs/remotes/github.com/master
