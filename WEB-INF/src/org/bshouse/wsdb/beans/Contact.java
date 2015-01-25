@@ -41,6 +41,14 @@ public class Contact {
 	@Temporal(TemporalType.DATE)
 	private Date birthday = null;
 	
+	
+	
+	/*
+	 * Stripes has its own Error Handling (that I chose not to override)
+	 * This is a hack to let invalid dates be passed as strings so that 
+	 * java code can validate and send JSON errors.
+	 * 
+	 */
 	@Transient
 	private transient String bday = Constants.BLANK_STRING;
 	@Transient

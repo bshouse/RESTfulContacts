@@ -15,6 +15,8 @@ public class HibernateUtil {
 	
 	private static HibernateUtil instance = null;
 	
+	private static String schema = Constants.BLANK_STRING;
+	
 	private HibernateUtil() {
 		
 	}
@@ -31,17 +33,23 @@ public class HibernateUtil {
 			Configuration config = new Configuration();
 			config.configure();
 			String db = System.getenv(Constants.DB_ENV_VAR);
-			
+
 			//Determine if the Production DB was requested. 
 			if(!Constants.DB_PROD.equals(db)) {
 				//Test
-				config.setProperty("hibernate.connection.url", config.getProperty("hibernate.connection.url")+Constants.DB_TEST);
-				config.setProperty("hibernate.default_schema",Constants.DB_TEST);
+				config.setProperty("hibernate.connection.url", Settings.getDatabaseJdbcUrl()+Settings.getDatabaseIpAddress()+":"+Settings.getDatabasePort()+"/"+Settings.getDatabaseTest());
+				schema = Settings.getDatabaseTestSchema();
+				config.setProperty("hibernate.default_schema", schema);
+				
 			} else {
 				//Production
-				config.setProperty("hibernate.connection.url", config.getProperty("hibernate.connection.url")+Constants.DB_PROD);
-				config.setProperty("hibernate.default_schema",Constants.DB_PROD);
+				config.setProperty("hibernate.connection.url", Settings.getDatabaseJdbcUrl()+Settings.getDatabaseIpAddress()+":"+Settings.getDatabasePort()+"/"+Settings.getDatabaseProduction());
+				schema = Settings.getDatabaseProductionSchema();
+				config.setProperty("hibernate.default_schema", schema);
 			}
+			config.setProperty("hibernate.connection.username", Settings.getDatabaseUser());
+			config.setProperty("hibernate.connection.password", Settings.getDatabasePassword());
+
 			sessionFactory = config.buildSessionFactory(
 					new StandardServiceRegistryBuilder().applySettings(config.getProperties()).build());
 		}
@@ -53,6 +61,10 @@ public class HibernateUtil {
 			return getSessionFactory().openSession();
 		}
 		return sessionFactory.openSession();
+	}
+	
+	public static String getSchema() {
+		return schema;
 	}
 	
 	public static <T> List<T> castList(Class<? extends T> clazz, Collection<?> untypedList) {

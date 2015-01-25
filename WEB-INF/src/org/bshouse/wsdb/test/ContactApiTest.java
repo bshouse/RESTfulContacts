@@ -21,8 +21,8 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.bshouse.wsdb.beans.Contact;
-import org.bshouse.wsdb.common.Constants;
 import org.bshouse.wsdb.common.HibernateUtil;
+import org.bshouse.wsdb.common.Settings;
 import org.bshouse.wsdb.server.Servers;
 import org.hibernate.Session;
 import org.junit.AfterClass;
@@ -31,9 +31,11 @@ import org.junit.Test;
 
 public class ContactApiTest {
 
+	@SuppressWarnings("unused")
+	private Settings s = new Settings();
 	private Session db = HibernateUtil.getSession();
 	private static Servers wsdb;
-	private static String baseUrl = new String("http://"+Constants.SERVER_IP+":"+Constants.WEBSERVER_PORT);
+	private final String baseUrl = new String("http://"+Settings.getWebserverIpAddress()+":"+Settings.getWebserverPortHttp());
 	
 	@BeforeClass
 	public static void startServers() {
@@ -48,7 +50,11 @@ public class ContactApiTest {
 	
 	private void cleanDb() {
 		
-		db.createSQLQuery("delete from contact").executeUpdate();
+		if(StringUtils.isNotBlank(HibernateUtil.getSchema())) {
+			db.createSQLQuery("delete from "+HibernateUtil.getSchema()+".contact").executeUpdate();
+		} else {
+			db.createSQLQuery("delete from contact").executeUpdate();
+		}
 		db.flush();
 	}
 	
@@ -66,7 +72,7 @@ public class ContactApiTest {
 		HttpResponse hr = httpclient.execute(get);
 		String content = IOUtils.toString(hr.getEntity().getContent());
 		System.out.println("1. testContactList: "+content);
-		assertTrue(content.equals("{\"message\":[],\"success\":true}"));
+		assertTrue(content.equals("{\"data\":[],\"success\":true}"));
 		
 		
 		addContact("Bill");

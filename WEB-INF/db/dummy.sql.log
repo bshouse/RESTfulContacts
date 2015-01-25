@@ -180,3 +180,104 @@
 2015-01-24 19:52:57.409 35 ROLLBACK 
 2015-01-24 19:52:57.411 32 ROLLBACK 
 2015-01-24 19:52:57.412 33 ROLLBACK 
+2015-01-25 12:13:24.717 2 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TYPEINFO 
+2015-01-25 12:13:25.533 6 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TRUE AND TABLE_NAME = 'PROBABLYNOT' AND TABLE_TYPE IN ('TABLE') 
+2015-01-25 12:13:25.564 5 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TRUE AND TABLE_NAME = 'PROBABLYNOT' AND TABLE_TYPE IN ('TABLE') 
+2015-01-25 12:13:25.578 2 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TRUE AND TABLE_NAME = 'PROBABLYNOT' AND TABLE_TYPE IN ('TABLE') 
+2015-01-25 12:13:25.594 3 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TRUE AND TABLE_NAME = 'PROBABLYNOT' AND TABLE_TYPE IN ('TABLE') 
+2015-01-25 12:13:25.606 4 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TRUE AND TABLE_NAME = 'PROBABLYNOT' AND TABLE_TYPE IN ('TABLE') 
+2015-01-25 12:13:25.741 7 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TABLES WHERE TRUE AND TABLE_NAME = 'PROBABLYNOT' AND TABLE_TYPE IN ('TABLE') 
+2015-01-25 12:13:25.758 2 ROLLBACK 
+2015-01-25 12:18:13.766 3 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TYPEINFO 
+2015-01-25 12:18:14.509 5 delete from dummy.contact 
+2015-01-25 12:18:14.602 5 COMMIT 
+2015-01-25 12:18:14.669 6 delete from dummy.contact 
+2015-01-25 12:18:14.670 6 COMMIT 
+2015-01-25 12:18:14.694 3 insert into dummy.contact (id, birthday, email, first, last, cell) values (default, ?, ?, ?, ?, ?) (NULL,'user@mail.com','First','Last','1-303-555-1212')
+2015-01-25 12:18:14.695 3 COMMIT 
+2015-01-25 12:18:14.722 3 update dummy.contact set birthday=?, email=?, first=?, last=?, cell=? where id=? (NULL,'email@mail.com','First','Last','1-303-555-1212',1)
+2015-01-25 12:18:14.722 3 COMMIT 
+2015-01-25 12:18:14.729 3 delete from dummy.contact 
+2015-01-25 12:18:14.729 3 COMMIT 
+2015-01-25 12:18:14.743 2 delete from dummy.contact 
+2015-01-25 12:18:14.743 2 COMMIT 
+2015-01-25 12:18:14.771 4 select this_.id as id1_0_0_, this_.birthday as birthday2_0_0_, this_.email as email3_0_0_, this_.first as first4_0_0_, this_.last as last5_0_0_, this_.cell as cell6_0_0_ from dummy.contact this_ 
+2015-01-25 12:18:14.771 4 COMMIT 
+2015-01-25 12:18:14.779 4 delete from dummy.contact 
+2015-01-25 12:18:14.779 4 COMMIT 
+2015-01-25 12:18:14.892 9 insert into dummy.contact (id, birthday, email, first, last, cell) values (default, ?, ?, ?, ?, ?) (DATE'2000-10-31','user@mail.com','First','Last','1-303-555-1212')
+2015-01-25 12:18:14.892 9 COMMIT 
+2015-01-25 12:18:14.908 9 delete from dummy.contact 
+2015-01-25 12:18:14.908 9 COMMIT 
+2015-01-25 12:18:14.917 8 insert into dummy.contact (id, birthday, email, first, last, cell) values (default, ?, ?, ?, ?, ?) (NULL,'user@mail.com','First','Last','1-303-555-1212')
+2015-01-25 12:18:14.917 8 COMMIT 
+2015-01-25 12:18:14.926 8 select this_.id as id1_0_0_, this_.birthday as birthday2_0_0_, this_.email as email3_0_0_, this_.first as first4_0_0_, this_.last as last5_0_0_, this_.cell as cell6_0_0_ from dummy.contact this_ where this_.id=? (3)
+2015-01-25 12:18:14.926 8 COMMIT 
+2015-01-25 12:18:14.933 8 delete from dummy.contact where id=? (3)
+2015-01-25 12:18:14.933 8 COMMIT 
+2015-01-25 12:18:14.942 4 ROLLBACK 
+2015-01-25 12:18:14.942 2 ROLLBACK 
+2015-01-25 12:18:14.943 3 ROLLBACK 
+2015-01-25 12:18:14.943 5 ROLLBACK 
+2015-01-25 12:18:14.943 6 ROLLBACK 
+2015-01-25 12:18:14.943 7 ROLLBACK 
+2015-01-25 12:18:14.943 8 ROLLBACK 
+2015-01-25 12:18:14.943 9 ROLLBACK 
+2015-01-25 12:19:07.108 12 call database_version() 
+2015-01-25 12:19:07.108 12 COMMIT 
+2015-01-25 12:19:07.111 12 call database_version() 
+2015-01-25 12:19:07.111 12 COMMIT 
+2015-01-25 12:19:07.112 12 call database_version() 
+2015-01-25 12:19:07.112 12 COMMIT 
+2015-01-25 12:19:07.115 12 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TYPEINFO 
+2015-01-25 12:19:07.941 14 delete from dummy.contact 
+2015-01-25 12:19:07.942 14 COMMIT 
+2015-01-25 12:19:07.996 13 delete from dummy.contact 
+2015-01-25 12:19:07.996 13 COMMIT 
+2015-01-25 12:19:08.027 12 insert into dummy.contact (id, birthday, email, first, last, cell) values (default, ?, ?, ?, ?, ?) (NULL,'user@mail.com','First','Last','1-303-555-1212')
+2015-01-25 12:19:08.100 12 COMMIT 
+2015-01-25 12:19:08.157 12 update dummy.contact set birthday=?, email=?, first=?, last=?, cell=? where id=? (NULL,'email@mail.com','First','Last','1-303-555-1212',4)
+2015-01-25 12:19:08.157 12 COMMIT 
+2015-01-25 12:19:08.168 12 delete from dummy.contact 
+2015-01-25 12:19:08.168 12 COMMIT 
+2015-01-25 12:19:08.188 11 delete from dummy.contact 
+2015-01-25 12:19:08.188 11 COMMIT 
+2015-01-25 12:19:08.213 10 select this_.id as id1_0_0_, this_.birthday as birthday2_0_0_, this_.email as email3_0_0_, this_.first as first4_0_0_, this_.last as last5_0_0_, this_.cell as cell6_0_0_ from dummy.contact this_ 
+2015-01-25 12:19:08.213 10 COMMIT 
+2015-01-25 12:19:08.221 11 insert into dummy.contact (id, birthday, email, first, last, cell) values (default, ?, ?, ?, ?, ?) (NULL,'','Bill','','')
+2015-01-25 12:19:08.221 11 COMMIT 
+2015-01-25 12:19:08.223 11 insert into dummy.contact (id, birthday, email, first, last, cell) values (default, ?, ?, ?, ?, ?) (NULL,'','Bob','','')
+2015-01-25 12:19:08.223 11 COMMIT 
+2015-01-25 12:19:08.230 10 select this_.id as id1_0_0_, this_.birthday as birthday2_0_0_, this_.email as email3_0_0_, this_.first as first4_0_0_, this_.last as last5_0_0_, this_.cell as cell6_0_0_ from dummy.contact this_ 
+2015-01-25 12:19:08.230 10 COMMIT 
+2015-01-25 12:19:08.244 10 delete from dummy.contact 
+2015-01-25 12:19:08.245 10 COMMIT 
+2015-01-25 12:19:08.365 15 insert into dummy.contact (id, birthday, email, first, last, cell) values (default, ?, ?, ?, ?, ?) (DATE'2000-10-31','user@mail.com','First','Last','1-303-555-1212')
+2015-01-25 12:19:08.365 15 COMMIT 
+2015-01-25 12:19:08.387 15 delete from dummy.contact 
+2015-01-25 12:19:08.387 15 COMMIT 
+2015-01-25 12:19:08.400 17 insert into dummy.contact (id, birthday, email, first, last, cell) values (default, ?, ?, ?, ?, ?) (NULL,'user@mail.com','First','Last','1-303-555-1212')
+2015-01-25 12:19:08.400 17 COMMIT 
+2015-01-25 12:19:08.415 17 select this_.id as id1_0_0_, this_.birthday as birthday2_0_0_, this_.email as email3_0_0_, this_.first as first4_0_0_, this_.last as last5_0_0_, this_.cell as cell6_0_0_ from dummy.contact this_ where this_.id=? (8)
+2015-01-25 12:19:08.415 17 COMMIT 
+2015-01-25 12:19:08.421 17 delete from dummy.contact where id=? (8)
+2015-01-25 12:19:08.421 17 COMMIT 
+2015-01-25 12:19:08.434 11 ROLLBACK 
+2015-01-25 12:19:08.435 10 ROLLBACK 
+2015-01-25 12:19:08.435 12 ROLLBACK 
+2015-01-25 12:19:08.435 13 ROLLBACK 
+2015-01-25 12:19:08.435 14 ROLLBACK 
+2015-01-25 12:19:08.435 15 ROLLBACK 
+2015-01-25 12:19:08.435 16 ROLLBACK 
+2015-01-25 12:19:08.435 17 ROLLBACK 
+2015-01-25 12:20:08.966 12 call database_version() 
+2015-01-25 12:20:08.966 12 COMMIT 
+2015-01-25 12:20:08.969 12 call database_version() 
+2015-01-25 12:20:08.969 12 COMMIT 
+2015-01-25 12:20:08.969 12 call database_version() 
+2015-01-25 12:20:08.969 12 COMMIT 
+2015-01-25 12:20:08.973 12 SELECT * FROM INFORMATION_SCHEMA.SYSTEM_TYPEINFO 
+2015-01-25 12:20:09.436 13 select this_.id as id1_0_0_, this_.birthday as birthday2_0_0_, this_.email as email3_0_0_, this_.first as first4_0_0_, this_.last as last5_0_0_, this_.cell as cell6_0_0_ from dummy.contact this_ 
+2015-01-25 12:20:09.436 13 COMMIT 
+2015-01-25 12:24:08.354 13 insert into dummy.contact (id, birthday, email, first, last, cell) values (default, ?, ?, ?, ?, ?) (DATE'1996-01-24','Fake.User@Inter.net','Fake','User','303-555-1212')
+2015-01-25 12:24:08.447 13 COMMIT 

@@ -3,7 +3,8 @@ package org.bshouse.wsdb.server;
 import java.io.File;
 import java.util.Properties;
 
-import org.bshouse.wsdb.common.Constants;
+import org.apache.commons.lang3.StringUtils;
+import org.bshouse.wsdb.common.Settings;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -18,14 +19,19 @@ public class Servers {
 
 	
 	public void start() {
+		Settings.loadAppProperties(getClass().getClassLoader().getResourceAsStream("app.properties"));
 		
 		startDb();
 		s = new Server();
 		//Create an HTTP server that runs on port 80
 		
 		ServerConnector sc = new ServerConnector(s);
-		sc.setHost(Constants.SERVER_IP);
-		sc.setPort(Constants.WEBSERVER_PORT);
+		if(StringUtils.isNotBlank(Settings.getWebserverIpAddress())) {
+			sc.setHost(Settings.getWebserverIpAddress());
+		}
+		if(StringUtils.isNotBlank(Settings.getWebserverPortHttp())) {
+			sc.setPort(Integer.parseInt(Settings.getWebserverPortHttp()));
+		}
 		s.setConnectors(new Connector[] { sc });
 		
 		
@@ -76,8 +82,8 @@ public class Servers {
 	private void startDb() {
 		File dbDir = new File("WEB-INF/db/dummy");
 		Properties p = new Properties();
-		p.put("server.address", Constants.SERVER_IP);
-		p.put("server.port", Constants.DBSERVER_PORT);
+		p.put("server.address", Settings.getDatabaseIpAddress());
+		p.put("server.port", Settings.getDatabasePort());
 		p.put("server.database.0","file:"+dbDir.getAbsolutePath()+
 				";hsqldb.sqllog=3;sql.enforce_names=true;user=dummy;password=dp4hsdb");
 		p.put("server.dbname.0", "dummy");
