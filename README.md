@@ -26,8 +26,6 @@ ant ProdServer
 1. Start the Test Server- ant TestServer 
 2. Start the JUnit tests- ant ContactApiTest
 
-<<<<<<< HEAD
+
 (Note: All 'ant' commands should be run where the build.xml file is located.)
-=======
-(Note: All 'ant' commands should be run where the build.xml file is located.)
->>>>>>> refs/remotes/github.com/master
+
