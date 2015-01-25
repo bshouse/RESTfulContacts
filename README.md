@@ -1,5 +1,5 @@
 # RESTfulContacts
-A simple REST application for basic contact management
+A simple REST application for basic contact management (See the Wiki for more detailed information)
 
 ## Framework Configuration
 * Stripes Framework
