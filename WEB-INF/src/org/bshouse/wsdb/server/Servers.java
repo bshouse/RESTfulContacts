@@ -37,6 +37,10 @@ public class Servers {
 		
 		//Add a WebApp
 		WebAppContext wac = new WebAppContext();
+		if(!Settings.isProduction()) {
+			//Enable automatic reloading
+			wac.setInitParameter("Extension.Packages", "org.stripesbook.reload.extensions");
+		}
 		wac.setDescriptor("WEB-INF/web.xml");
 		wac.setResourceBase(".");
 		wac.setContextPath("/");

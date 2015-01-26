@@ -32,20 +32,21 @@ public class HibernateUtil {
 		if(sessionFactory == null) {
 			Configuration config = new Configuration();
 			config.configure();
-			String db = System.getenv(Constants.DB_ENV_VAR);
+			
 
 			//Determine if the Production DB was requested. 
-			if(!Constants.DB_PROD.equals(db)) {
+			if(Settings.isProduction()) {
+				//Production
+				config.setProperty("hibernate.connection.url", Settings.getDatabaseJdbcUrl()+Settings.getDatabaseIpAddress()+":"+Settings.getDatabasePort()+"/"+Settings.getDatabaseProduction());
+				schema = Settings.getDatabaseProductionSchema();
+				config.setProperty("hibernate.default_schema", schema);
+				
+			} else {
 				//Test
 				config.setProperty("hibernate.connection.url", Settings.getDatabaseJdbcUrl()+Settings.getDatabaseIpAddress()+":"+Settings.getDatabasePort()+"/"+Settings.getDatabaseTest());
 				schema = Settings.getDatabaseTestSchema();
 				config.setProperty("hibernate.default_schema", schema);
 				
-			} else {
-				//Production
-				config.setProperty("hibernate.connection.url", Settings.getDatabaseJdbcUrl()+Settings.getDatabaseIpAddress()+":"+Settings.getDatabasePort()+"/"+Settings.getDatabaseProduction());
-				schema = Settings.getDatabaseProductionSchema();
-				config.setProperty("hibernate.default_schema", schema);
 			}
 			config.setProperty("hibernate.connection.username", Settings.getDatabaseUser());
 			config.setProperty("hibernate.connection.password", Settings.getDatabasePassword());

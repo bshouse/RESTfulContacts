@@ -57,4 +57,10 @@ public class Settings {
 	public static String getDatabaseTestSchema() {
 		return (StringUtils.isNotBlank(props.getProperty("database.test.schema")) ? props.getProperty("database.test.schema") : "public");
 	}
+	public static boolean isProduction() {
+		if(Constants.DB_PROD.equals(System.getenv(Constants.DB_ENV_VAR))) {
+			return true;
+		}
+		return false;
+	}
 }
