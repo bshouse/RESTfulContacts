@@ -67,7 +67,7 @@ public class Contact {
 		}
 		
 		if(StringUtils.isNotBlank(numberCell) && numberCell.length() > 30) {
-			sb.append("\nCellphone number must not exceed 30 characters.");
+			sb.append("\nPhone number must not exceed 30 characters.");
 		}
 		
 		if(StringUtils.isNotBlank(email) && email.length() > 254) {
