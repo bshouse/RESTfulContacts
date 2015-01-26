@@ -32,24 +32,27 @@ import org.junit.Test;
 public class ContactApiTest {
 
 	@SuppressWarnings("unused")
-	private Settings s = new Settings();
-	private Session db = HibernateUtil.getSession();
-	private static Servers wsdb;
+	private Settings s = new Settings(); //Init file based configuration
+	private Session db = HibernateUtil.getSession(); //Init DB connection
+	private static Servers wsdb; //DB & WebServer
+	//Build the Contact API base URL
 	private final String baseUrl = new String("http://"+Settings.getWebserverIpAddress()+":"+Settings.getWebserverPortHttp());
 	
 	@BeforeClass
 	public static void startServers() {
+		//Setup the Web & DB server before any tests run
 		wsdb = new Servers();
 		wsdb.start();
 	}
 	
 	@AfterClass
 	public static void stopServers() {
+		//Stop the DB & WebServer after all the tests have run
 		wsdb.stop();
 	}
 	
 	private void cleanDb() {
-		
+		//A common method for deleting all Contact from the DB
 		if(StringUtils.isNotBlank(HibernateUtil.getSchema())) {
 			db.createSQLQuery("delete from "+HibernateUtil.getSchema()+".contact").executeUpdate();
 		} else {
@@ -59,38 +62,52 @@ public class ContactApiTest {
 	}
 	
 	private void addContact(String fname) {
+		//A simple way to add dummy contacts for testing
 		Contact c = new Contact();
 		c.setNameFirst(fname);
 		db.save(c);
 	}
 	
+	
+	/*
+	 * 
+	 * The the Contact API listing function
+	 * 
+	 */
 	@Test
 	public void testContactList() throws ClientProtocolException, IOException {
-		cleanDb();
-		HttpClient httpclient = HttpClients.createDefault();
-		HttpGet get = new HttpGet(baseUrl+"/api/1.0/contact");
-		HttpResponse hr = httpclient.execute(get);
-		String content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("1. testContactList: "+content);
-		assertTrue(content.equals("{\"data\":[],\"success\":true}"));
+		
+		cleanDb(); //Empty Contact table
+		HttpClient httpclient = HttpClients.createDefault(); //Create a HTTP client
+		HttpGet get = new HttpGet(baseUrl+"/api/1.0/contact"); //Setup a GET request with the Contact API
+		HttpResponse hr = httpclient.execute(get); //Run the request
+		String content = IOUtils.toString(hr.getEntity().getContent()); //Get the response body
+		System.out.println("1. testContactList: "+content); //Output the body for debugging
+		assertTrue(content.equals("{\"data\":[],\"success\":true}")); //Assert we got a blank list
 		
 		
-		addContact("Bill");
-		addContact("Bob");
-		db.flush();
-		get = new HttpGet(baseUrl+"/api/1.0/contact");
-		hr = httpclient.execute(get);
-		content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("2. testContactList: "+content);
-		assertTrue(content.endsWith(",\"success\":true}"));
+		addContact("Bill"); //Add contact Bill
+		addContact("Bob"); //Add contact Bob
+		db.flush(); //Commit
+		get = new HttpGet(baseUrl+"/api/1.0/contact"); //Prepare GET request to list contacts
+		hr = httpclient.execute(get); //Execute the Request
+		content = IOUtils.toString(hr.getEntity().getContent()); //Get the response body
+		System.out.println("2. testContactList: "+content); //Output the body for debugging
+		assertTrue(content.endsWith(",\"success\":true}")); //Assert we got a success
 	}
 	
+	/*
+	 * 
+	 * Test adding a contact via the Contact API
+	 * 
+	 */
 	@Test
 	public void testContactAdd() throws ClientProtocolException, IOException {
-		cleanDb();
-		HttpClient httpclient = HttpClients.createDefault();
-		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact");
+		cleanDb(); //Empty DB
+		HttpClient httpclient = HttpClients.createDefault(); //Create HTTP Client
+		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact"); //Create POST request
 
+		//Build POST data
 		List<NameValuePair> nvpl = new ArrayList<NameValuePair>(5);
 		nvpl.add(new BasicNameValuePair("contact.id","-1"));
 		nvpl.add(new BasicNameValuePair("contact.nameFirst","First"));
@@ -99,41 +116,57 @@ public class ContactApiTest {
 		nvpl.add(new BasicNameValuePair("contact.email","user@mail.com"));
 		nvpl.add(new BasicNameValuePair("contact.bday","10/31/2000"));
 		
-		post.setEntity(new UrlEncodedFormEntity(nvpl));
-		HttpResponse hr = httpclient.execute(post);
-		String content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testAddContact: "+content);
-		assertTrue(content.endsWith(",\"success\":true}"));
+		post.setEntity(new UrlEncodedFormEntity(nvpl)); //Include post data in Request
+		HttpResponse hr = httpclient.execute(post); //Execute the POST
+		String content = IOUtils.toString(hr.getEntity().getContent()); //Get Response body
+		System.out.println("testAddContact: "+content); //Output for debugging
+		assertTrue(content.endsWith(",\"success\":true}")); //Assert True response
 	}
 	
+	
+	/*
+	 * 
+	 * Test Contact addition with a validation failure
+	 * 
+	 */
 	@Test
 	public void testContactAddOverflow() throws ClientProtocolException, IOException {
-		cleanDb();
-		HttpClient httpclient = HttpClients.createDefault();
-		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact");
+		cleanDb(); //Empty DB
+		HttpClient httpclient = HttpClients.createDefault(); //Create HTTP Client
+		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact"); //Create POST request
 
+		//Create POST data
 		List<NameValuePair> nvpl = new ArrayList<NameValuePair>(5);
 		nvpl.add(new BasicNameValuePair("contact.id","-1"));
 		nvpl.add(new BasicNameValuePair("contact.nameFirst","First"));
 		nvpl.add(new BasicNameValuePair("contact.nameLast","Last"));
+		//Overflow Phone Number
 		nvpl.add(new BasicNameValuePair("contact.numberCell","1-303-555-121234sdfgsdfg5wegsdgf434534534534534"));
 		nvpl.add(new BasicNameValuePair("contact.email","user@mail.com"));
 		
-		post.setEntity(new UrlEncodedFormEntity(nvpl));
-		HttpResponse hr = httpclient.execute(post);
-		String content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testAddOverflowContact: "+content);
-		assertTrue(content.equals("{\"message\":\"\\nCellphone number must not exceed 30 characters.\",\"success\":false}"));
+		post.setEntity(new UrlEncodedFormEntity(nvpl)); //Add POST data to request
+		HttpResponse hr = httpclient.execute(post); //Execute request
+		String content = IOUtils.toString(hr.getEntity().getContent()); //Get response bodu
+		System.out.println("testAddOverflowContact: "+content); //Output for debugging
+		//Assert we got the expected error message
+		assertTrue(content.equals("{\"message\":\"\\nPhone number must not exceed 30 characters.\",\"success\":false}"));
 	}
+	
+	/*
+	 * 
+	 * Test adding a Contat with a bad date format
+	 * 
+	 * 
+	 */
 	
 	@Test
 	public void testContactAddBadDateFormat() throws ClientProtocolException, IOException {
-		//cleanDb();
 		
-		//Invalid date format
-		HttpClient httpclient = HttpClients.createDefault();
-		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact");
+		//Test Invalid date format 
+		HttpClient httpclient = HttpClients.createDefault(); //Create HTTP Client
+		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact"); //Creat POST Request
 
+		//Populate POST data
 		List<NameValuePair> nvpl = new ArrayList<NameValuePair>(5);
 		nvpl.add(new BasicNameValuePair("contact.id","-1"));
 		nvpl.add(new BasicNameValuePair("contact.nameFirst","First"));
@@ -142,39 +175,30 @@ public class ContactApiTest {
 		nvpl.add(new BasicNameValuePair("contact.email","user@mail.com"));
 		nvpl.add(new BasicNameValuePair("contact.bday","2000/10/31"));
 		
-		post.setEntity(new UrlEncodedFormEntity(nvpl));
-		HttpResponse hr = httpclient.execute(post);
-		String content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testAddBadDateContact: "+content);
+		post.setEntity(new UrlEncodedFormEntity(nvpl)); //Attach POST data to request
+		HttpResponse hr = httpclient.execute(post); //Execute POST request
+		String content = IOUtils.toString(hr.getEntity().getContent()); //Get response body
+		System.out.println("testAddBadDateContact: "+content); //Output for debugging
 		assertTrue(content.endsWith("{\"message\":\"\\nBirthday must be a valid date formatted like MM/DD/YYYY.\",\"success\":false}"));
 		
 		
-		//Invalid Date
-		nvpl = new ArrayList<NameValuePair>(5);
-		nvpl.add(new BasicNameValuePair("contact.id","-1"));
-		nvpl.add(new BasicNameValuePair("contact.nameFirst","First"));
-		nvpl.add(new BasicNameValuePair("contact.nameLast","Last"));
-		nvpl.add(new BasicNameValuePair("contact.numberCell","1-303-555-1212"));
-		nvpl.add(new BasicNameValuePair("contact.email","user@mail.com"));
-		nvpl.add(new BasicNameValuePair("contact.bday","10/32/2000"));
-		
-		post.setEntity(new UrlEncodedFormEntity(nvpl));
-		hr = httpclient.execute(post);
-		content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testAddBadDateContact: "+content);
-		assertTrue(content.endsWith("{\"message\":\"\\nBirthday must be a valid date formatted like MM/DD/YYYY.\",\"success\":false}"));
 	}
 	
 	
+	/*
+	 * 
+	 * Test adding a Contact with a bad date
+	 * October 32, 2000 
+	 * 
+	 */
 	@Test
 	public void testContactAddBadDate() throws ClientProtocolException, IOException {
-		//cleanDb();
 		
 		//Invalid date format
-		HttpClient httpclient = HttpClients.createDefault();
-		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact");
+		HttpClient httpclient = HttpClients.createDefault(); //Create HTTP client
+		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact"); //Create POST request
 
-		//Invalid Date
+		//Populate POST data with Invalid Date
 		List<NameValuePair> nvpl = new ArrayList<NameValuePair>(5);
 		nvpl.add(new BasicNameValuePair("contact.id","-1"));
 		nvpl.add(new BasicNameValuePair("contact.nameFirst","First"));
@@ -183,22 +207,30 @@ public class ContactApiTest {
 		nvpl.add(new BasicNameValuePair("contact.email","user@mail.com"));
 		nvpl.add(new BasicNameValuePair("contact.bday","10/32/2000"));
 		
-		post.setEntity(new UrlEncodedFormEntity(nvpl));
-		HttpResponse hr = httpclient.execute(post);
-		String content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testAddBadDateContact: "+content);
+		post.setEntity(new UrlEncodedFormEntity(nvpl)); //Add POST data to the request
+		HttpResponse hr = httpclient.execute(post); //Execute the POST request
+		String content = IOUtils.toString(hr.getEntity().getContent()); //Get the POST response body
+		System.out.println("testAddBadDateContact: "+content); //Output for debugging
+		//Ensure we got the expected response
 		assertTrue(content.endsWith("{\"message\":\"\\nBirthday must be a valid date formatted like MM/DD/YYYY.\",\"success\":false}"));
 	}
 
 	
+	
+	/*
+	 * 
+	 * Test Updating an existing contact
+	 * 
+	 */
 	@Test
 	public void testContactUpdate() throws ClientProtocolException, IOException, URISyntaxException {
-		cleanDb();
+		cleanDb(); //Empty table
 		
 		//Add a contact to edit
-		HttpClient httpclient = HttpClients.createDefault();
-		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact");
+		HttpClient httpclient = HttpClients.createDefault(); //Create HTTP Client
+		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact"); //Create POST request
 
+		//Populate POST data
 		List<NameValuePair> nvpl = new ArrayList<NameValuePair>(5);
 		nvpl.add(new BasicNameValuePair("contact.id","-1"));
 		nvpl.add(new BasicNameValuePair("contact.nameFirst","First"));
@@ -206,40 +238,49 @@ public class ContactApiTest {
 		nvpl.add(new BasicNameValuePair("contact.numberCell","1-303-555-1212"));
 		nvpl.add(new BasicNameValuePair("contact.email","user@mail.com"));
 		
-		post.setEntity(new UrlEncodedFormEntity(nvpl));
-		HttpResponse hr = httpclient.execute(post);
-		String content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testUpdateContact(Add): "+content);
-		assertTrue(content.endsWith(",\"success\":true}"));
+		post.setEntity(new UrlEncodedFormEntity(nvpl)); //Add POST data to request
+		HttpResponse hr = httpclient.execute(post); //Execute POST request
+		String content = IOUtils.toString(hr.getEntity().getContent()); //Get response body
+		System.out.println("testUpdateContact(Add): "+content); //Output for debugging
+		assertTrue(content.endsWith(",\"success\":true}")); //Assert Contact was added
 		
-		//Parse the ID
+		//Parse the ID of the newly added Contact
 		String id = StringUtils.substringBetween(content,"\"id\":", ",");
 
-		System.out.println("ID: "+id);
+		System.out.println("ID: "+id); //Output for debugging
 		
 		//Edit contact
-		HttpPut put = new HttpPut(baseUrl+"/api/1.0/contact/"+id);
+		HttpPut put = new HttpPut(baseUrl+"/api/1.0/contact/"+id); //Create a PUT request
+		//Populate PUT data
 		List<NameValuePair> unvpl = new ArrayList<NameValuePair>(5);
 		unvpl.add(new BasicNameValuePair("contact.id",id));
 		unvpl.add(new BasicNameValuePair("contact.nameFirst","First"));
 		unvpl.add(new BasicNameValuePair("contact.nameLast","Last"));
 		unvpl.add(new BasicNameValuePair("contact.numberCell","1-303-555-1212"));
 		unvpl.add(new BasicNameValuePair("contact.email","email@mail.com"));
-		put.setEntity(new UrlEncodedFormEntity(unvpl));
-		hr = httpclient.execute(put);
-		content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testUpdateContact: "+content);
+		put.setEntity(new UrlEncodedFormEntity(unvpl)); //Attach PUT data to request
+		hr = httpclient.execute(put); //Execute PUT request
+		content = IOUtils.toString(hr.getEntity().getContent()); //Get response body
+		System.out.println("testUpdateContact: "+content); //Output for debugging
+		//Ensure it was successful and the email address changed as expected
 		assertTrue(content.endsWith(",\"success\":true}") && content.indexOf("email@mail.com") > 0);
 	}
 	
+	
+	/*
+	 * 
+	 * Test Contact delete
+	 * 
+	 */
 	@Test
 	public void testContactDelete() throws ClientProtocolException, IOException {
-		cleanDb();
+		cleanDb(); //Empty Contact table
 		
-		//Add a contact to edit
-		HttpClient httpclient = HttpClients.createDefault();
-		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact");
+		//Add a contact to delete
+		HttpClient httpclient = HttpClients.createDefault(); //Create an HTTP client
+		HttpPost post = new HttpPost(baseUrl+"/api/1.0/contact"); //Create a POST request
 
+		//Populate POST data
 		List<NameValuePair> nvpl = new ArrayList<NameValuePair>(5);
 		nvpl.add(new BasicNameValuePair("contact.id","-1"));
 		nvpl.add(new BasicNameValuePair("contact.nameFirst","First"));
@@ -247,34 +288,41 @@ public class ContactApiTest {
 		nvpl.add(new BasicNameValuePair("contact.numberCell","1-303-555-1212"));
 		nvpl.add(new BasicNameValuePair("contact.email","user@mail.com"));
 		
-		post.setEntity(new UrlEncodedFormEntity(nvpl));
-		HttpResponse hr = httpclient.execute(post);
-		String content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testDeleteContact(Add): "+content);
-		assertTrue(content.endsWith(",\"success\":true}"));
+		post.setEntity(new UrlEncodedFormEntity(nvpl)); //Attache POST date to request
+		HttpResponse hr = httpclient.execute(post); //Execute the POST request
+		String content = IOUtils.toString(hr.getEntity().getContent()); //Get response body
+		System.out.println("testDeleteContact(Add): "+content); //Output for debugging
+		assertTrue(content.endsWith(",\"success\":true}")); //Ensure success
 		
-		//Parse the ID
+		//Parse the ID of the newly added Contact
 		String id = StringUtils.substringBetween(content,"\"id\":", ",");
 
-		System.out.println("ID: "+id);
+		System.out.println("ID: "+id); //Output for debugging
 		
 		//Delete contact
-		HttpDelete del = new HttpDelete(baseUrl+"/api/1.0/contact/"+id);
-		hr = httpclient.execute(del);
-		content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testDeleteContact: "+content);
-		assertTrue(content.endsWith(",\"success\":true}"));
+		HttpDelete del = new HttpDelete(baseUrl+"/api/1.0/contact/"+id); //Create DELETE request
+		hr = httpclient.execute(del); //Execute DELETE request
+		content = IOUtils.toString(hr.getEntity().getContent()); //Get response body
+		System.out.println("testDeleteContact: "+content); //Output for debugging
+		assertTrue(content.endsWith(",\"success\":true}")); //Ensure success
 	}
 
+	/*
+	 * 
+	 * Test delete of an invalid (non-existant) Contact
+	 * 
+	 */
+	
 	@Test
 	public void testContactDeleteInvalid() throws ClientProtocolException, IOException {
-		cleanDb();
-		HttpClient httpclient = HttpClients.createDefault();
+		cleanDb(); //Empty Contact table
+		HttpClient httpclient = HttpClients.createDefault(); //Create HTTP Client
 		//Delete contact
-		HttpDelete del = new HttpDelete(baseUrl+"/api/1.0/contact/abc123");
-		HttpResponse hr = httpclient.execute(del);
-		String content = IOUtils.toString(hr.getEntity().getContent());
-		System.out.println("testDeleteInvalidContact: "+content);
+		HttpDelete del = new HttpDelete(baseUrl+"/api/1.0/contact/abc123"); //Create DELETE request
+		HttpResponse hr = httpclient.execute(del); //Execute DELETE request
+		String content = IOUtils.toString(hr.getEntity().getContent()); //Get response body
+		System.out.println("testDeleteInvalidContact: "+content); //Output for debugging
+		//Ensure the proper error message was returned
 		assertTrue(content.equals("{\"message\":\"Delete failed because required data is missing\",\"success\":false}"));
 	}
 	

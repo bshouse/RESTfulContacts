@@ -16,9 +16,15 @@ import javax.persistence.Transient;
 import org.apache.commons.lang3.StringUtils;
 import org.bshouse.wsdb.common.Constants;
 
+/*
+ * 
+ * This is the object use by Hibernate for DB persistance
+ * 
+ */
+
 @Entity
 @Table(name="contact")
-public class Contact {
+public class Contact extends BaseBean {
 
 	@Id
 	@Column(name="id")
@@ -55,6 +61,8 @@ public class Contact {
 	private transient SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 
 	public String valid() {
+		//Validation code that ensures the incoming data conforms to the model
+		
 		StringBuilder sb = new StringBuilder();
 		if(StringUtils.isBlank(nameFirst)) {
 			sb.append("\nFirst Name is a required field.");
@@ -75,6 +83,8 @@ public class Contact {
 		}
 		
 		if(StringUtils.isNotBlank(bday)) {
+			//This code is part of the Stripes validation avoidance
+			//When Stripes sets a bday, this code converts it into a Date for DB storage  
 			try {
 				sdf.setLenient(false);
 				birthday = sdf.parse(bday);
@@ -85,6 +95,11 @@ public class Contact {
 		return sb.toString();
 	}
 	
+	
+	/*
+	 * Getters & Setters
+	 * 
+	 */
 	
 	public Long getId() {
 		return id;
@@ -131,6 +146,9 @@ public class Contact {
 	}
 
 	public void setBirthday(Date birthday) {
+		//This extra code is part of the Stripes validation avoidance
+		//It simply set the string version (bday) to the date represented by birthday
+		//This is used when a contact is loaded from the DB by Hibernate
 		if(birthday != null) {
 			this.birthday = birthday;
 			bday = sdf.format(birthday);

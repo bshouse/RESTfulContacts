@@ -21,19 +21,28 @@ import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.StreamingResolution;
 import net.sourceforge.stripes.action.UrlBinding;
 
+/*
+ * 
+ * This action class provides the RESTful Contact API
+ * 
+ */
+
+
 @UrlBinding("/api/1.0/contact/{id}")
 @HttpCache(allow=false)
 public class ContactApiAction extends BaseAction {
 
-	private Session db = HibernateUtil.getSession();
-	private Gson g = new GsonBuilder().setDateFormat("MM/dd/yyyy").create();
-	private Map<String,Object> json = new HashMap<String,Object>();
-	private String id = Constants.BLANK_STRING;
-	private Contact contact;
+	private Session db = HibernateUtil.getSession(); //Database Access
+	private Gson g = new GsonBuilder().setDateFormat("MM/dd/yyyy").create(); //Java Object to JSON converter
+	private Map<String,Object> json = new HashMap<String,Object>(); //HashMap to be converted to JSON
+	private String id = Constants.BLANK_STRING; //Stripes put the ID from the URL here
+	private Contact contact; //Stripes puts the form data here
 	
 	
 	@DefaultHandler
 	public Resolution rest() {
+		//When a users requests the UrlBinding, Stripes loads this action
+		//Call the method that fits the need of the request
 		String method = getContext().getRequest().getMethod().toUpperCase();
 		if("GET".equals(method)) { //Lookup Contact
 			list();
@@ -47,84 +56,125 @@ public class ContactApiAction extends BaseAction {
 			json.put("success",false);
 			json.put("message", "Unsupported method requested: "+method);
 		}
-		db.close();
+		db.close(); //Close the Database
+		//Return anything loaded into the "json" HashMap as JSON text
 		return new StreamingResolution("application/json",g.toJson(json));
 	}
 	
-	
+	/*
+	 * 
+	 * Handles requests to list 1 or all Contacts
+	 * 
+	 */
 	private void list() {		
+		//Create a Hibernate Criteria Query for a "Contact" in the database
 		Criteria c = db.createCriteria(Contact.class);
 		if(StringUtils.isNotBlank(id)) {
 			//Load the requested contact
 			c.add(Restrictions.eq("id", Long.parseLong(id)));
 		}
+		//Based on the Criteria, List all matches and cast it to a typed list
 		List<Contact> cl = HibernateUtil.castList(Contact.class, c.list());
-		json.put("success",true);
-		json.put("data", cl);
+		
+		json.put("success",true); //Tell the JavaScript we were successful
+		json.put("data", cl); //Add the List of Contacts
 	}
 	
+	/*
+	 * 
+	 * Handles request to add new Contacts
+	 * 
+	 */
 	public void add() {
+		//Add a Contact
 		if(contact != null) {
+			//Stripes put something in the Contact object
 			if(contact.valid().length() == 0) {
+				//Validation returns no errors
 				if(contact.getId() == -1L) {
-					db.save(contact);
+					//The default ID is set
+					db.save(contact); //Add the contact
 					json.put("success",true);
-					json.put("data", contact);
+					json.put("data", contact); //Return the now saved contact
 				} else {
+					//Attempted to Add a contact that already exists
 					json.put("success",false);
 					json.put("message", "Contact already exists");
 				}
 			} else {
+				//The provided information did not fit the model
 				json.put("success",false);
-				json.put("message", contact.valid());
+				json.put("message", contact.valid()); //Return validation failure messages
 			}
 			
 		} else {
+			//No form data was submitted
 			json.put("success",false);
 			json.put("message", "Add failed because required data is missing");
 		}
 	}
 	
+	/*
+	 * Handles requests to update an existing Contact
+	 */
 	public void update() {
+		
+		
 		if(contact != null && id != null && contact.getId().equals(Long.parseLong(id))) {
+			//We got a Contact, that was PUT to a URL with an ID number and the Contact.id matches the URL ID
 			if(contact.valid().length() == 0) {
+				//No validation errors
 				if(contact.getId() > -1L) {
-					db.update(contact);
-					db.flush();
+					//The ID is not the default value
+					db.update(contact); //Update DB
+					db.flush(); //Commit change
 					json.put("success",true);
-					json.put("data", contact);
+					json.put("data", contact); //return update Contact
 				} else {
+					//Attempted to Update a new Contact (should be added instead)
 					json.put("success",false);
 					json.put("message", "Contact does not exist");
 				}
 			} else {
+				//Validation problem
 				json.put("success",false);
-				json.put("message", contact.valid());
+				json.put("message", contact.valid()); //Include validation errors
 			}
 			
 		} else {
+			//No form data or URL ID & Contact.id do not match
 			json.put("success",false);
 			json.put("message", "Update failed because required data is missing");
 		}
 	}
 	
+	
+	/*
+	 * 
+	 * Handles requests to delete a Contact
+	 * 
+	 */
 	public void delete() {
 		if(StringUtils.isNotBlank(id) && StringUtils.isNumeric(id)) {
-			Long cid = Long.parseLong(id);
-			Criteria c = db.createCriteria(Contact.class);
-			c.add(Restrictions.eq("id", cid));
-			List<Contact> cl = HibernateUtil.castList(Contact.class, c.list());
+			//The URL ID is present and is a number
+			Long cid = Long.parseLong(id); //Convert URL ID to a Long
+			Criteria c = db.createCriteria(Contact.class); //Create a Criteria Query on Contact
+			c.add(Restrictions.eq("id", cid)); //Restrict the Query to the requested ID
+			List<Contact> cl = HibernateUtil.castList(Contact.class, c.list()); //List Contact
 			if(cl.size() == 1) {
-				db.delete(cl.get(0));
-				db.flush();
+				//List returned the 1 expected Contact
+				db.delete(cl.get(0)); //Delete Contact
+				db.flush(); //Commit delete
 				json.put("success",true);
-				json.put("message", "Contact deleted");
+				json.put("message", "Contact deleted"); //Include message
 			} else {
+				//Attempted to delete a Contact that does not exist
 				json.put("success",false);
-				json.put("message", "Contact does not exist");
+				json.put("message", "Contact does not exist"); //Include message
 			}
 			
 		} else {
+			//The URL ID was blank or not a number
 			json.put("success",false);
 			json.put("message", "Delete failed because required data is missing");
 		}
@@ -133,7 +183,7 @@ public class ContactApiAction extends BaseAction {
 	
 	/*
 	 * 
-	 * Getters and Setters for request data
+	 * Getters and Setters for request data (Called by Stripes Framework)
 	 * 
 	 */
 	public String getId() {

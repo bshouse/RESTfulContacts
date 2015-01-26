@@ -9,12 +9,17 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 
+/*
+ * 
+ * Provides access to the DataBase along with information and tooling methods 
+ * The class also set the dynamic DB and schema for Test/Production
+ * 
+ */
+
 public class HibernateUtil {
 
 	private static SessionFactory sessionFactory;
-	
 	private static HibernateUtil instance = null;
-	
 	private static String schema = Constants.BLANK_STRING;
 	
 	private HibernateUtil() {
@@ -22,6 +27,7 @@ public class HibernateUtil {
 	}
 	
 	public static HibernateUtil getInstance() {
+		//Load/create the static instance of HibernateUtil
 		if(instance == null) {
 			instance = new HibernateUtil();
 		}
@@ -29,7 +35,9 @@ public class HibernateUtil {
 	}
 	
 	public static SessionFactory getSessionFactory() {
+		//Load/create the static instance of SessionFactory 
 		if(sessionFactory == null) {
+			//Read the hibernate.cfg.xml
 			Configuration config = new Configuration();
 			config.configure();
 			
@@ -58,6 +66,7 @@ public class HibernateUtil {
 	}
 	
 	public static Session getSession() {
+		//Returns a Session to process DB actions
 		if(sessionFactory == null) {
 			return getSessionFactory().openSession();
 		}
@@ -65,10 +74,13 @@ public class HibernateUtil {
 	}
 	
 	public static String getSchema() {
+		//Return the active schema name
 		return schema;
 	}
 	
 	public static <T> List<T> castList(Class<? extends T> clazz, Collection<?> untypedList) {
+		//This method is used to avoid Unchecked Type Casts
+		//It is not required to be used, but avoids warning when they count
 		List<T> typedList = new ArrayList<T>(untypedList.size());
 		for(Object o: untypedList) {
 			typedList.add(clazz.cast(o));

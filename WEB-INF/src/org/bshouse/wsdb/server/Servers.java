@@ -19,12 +19,18 @@ public class Servers {
 
 	
 	public void start() {
+		
+		//Load file based application settings
 		Settings.loadAppProperties(getClass().getClassLoader().getResourceAsStream("app.properties"));
 		
+		//Start the DB
 		startDb();
-		s = new Server();
-		//Create an HTTP server that runs on port 80
 		
+		//Create a new WebServer
+		s = new Server();
+
+		
+		//Create a connector on the requested IP/Port or default values
 		ServerConnector sc = new ServerConnector(s);
 		if(StringUtils.isNotBlank(Settings.getWebserverIpAddress())) {
 			sc.setHost(Settings.getWebserverIpAddress());
@@ -38,7 +44,7 @@ public class Servers {
 		//Add a WebApp
 		WebAppContext wac = new WebAppContext();
 		if(!Settings.isProduction()) {
-			//Enable automatic reloading
+			//Enable automatic reloading in Test
 			wac.setInitParameter("Extension.Packages", "org.stripesbook.reload.extensions");
 		}
 		wac.setDescriptor("WEB-INF/web.xml");
@@ -46,10 +52,11 @@ public class Servers {
 		wac.setContextPath("/");
 		wac.setParentLoaderPriority(true);
 		
-		
+		//Add the WebAppContext to the web server
 		s.setHandler(wac);
 		
 		try {
+			//Start the web server
 			s.start();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -61,7 +68,7 @@ public class Servers {
 		if(s == null) {
 			return;
 		}
-		//Start the server running
+		//Join the web server thread
 		try {
 			s.join();
 		} catch (Exception e) {
@@ -70,6 +77,7 @@ public class Servers {
 	}
 	
 	public void stop() {
+		//Stop the Web Server & DB
 		try {
 			if(s != null) {
 				s.stop();
@@ -84,15 +92,18 @@ public class Servers {
 	
 	
 	private void startDb() {
+		//Set path to DB
 		File dbDir = new File("WEB-INF/db/dummy");
+		
+		//Configure DB settings
 		Properties p = new Properties();
 		p.put("server.address", Settings.getDatabaseIpAddress());
 		p.put("server.port", Settings.getDatabasePort());
 		p.put("server.database.0","file:"+dbDir.getAbsolutePath()+
-				";hsqldb.sqllog=3;sql.enforce_names=true;user=dummy;password=dp4hsdb");
+				";hsqldb.sqllog=3;sql.enforce_names=true;user="+Settings.getDatabaseUser()+";password="+Settings.getDatabasePassword());
 		p.put("server.dbname.0", "dummy");
 		p.put("server.database.1","file:"+dbDir.getAbsolutePath()+
-				";hsqldb.sqllog=3;sql.enforce_names=true;user=dummy;password=dp4hsdb");
+				";hsqldb.sqllog=3;sql.enforce_names=true;user="+Settings.getDatabaseUser()+";password="+Settings.getDatabasePassword());
 		p.put("server.dbname.1", "prod");
 		p.put("server.silent","false");
 		p.put("server.trace", "true");
@@ -102,6 +113,7 @@ public class Servers {
 		
 		hp = new HsqlProperties(p);
 		
+		//Start the database server with the settings from above
 		server = new org.hsqldb.Server();
 		try {
 			server.setProperties(hp);
@@ -113,6 +125,7 @@ public class Servers {
 	}
 
 	public static void main(String[] args) {
+		//Command line startup
 		Servers s = new Servers();
 		s.start();
 		s.join();
